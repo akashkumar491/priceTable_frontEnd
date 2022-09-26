@@ -1,42 +1,70 @@
 import React, { useEffect, useState } from "react";
+import EditBaseForm from "./EditBaseForm";
+import {
+  deleteBasePriceTable,
+  addBasePriceTable,
+} from "../methods/method_types";
 
 const BasePriceTable = () => {
-  const rows: {}[] = [];
+  const rows: { id: number; amount: number; create_at: any; update_at: any }[] =
+    [];
 
   const [tableData, setTableData] = useState(rows);
+  const [istoggle, setIsToggle] = useState(false);
+  const [amt, setAmt] = useState("");
 
   const getBasePriceTable = async () => {
-    const res = await fetch("http://localhost:5000/basePrice");
-
-    // const table = (await res.json()).data;
-    // var x = JSON.parse(JSON.stringify(table));
-    //console.log(x, "6767");
-
-    //console.log(table, "8989");
-
-    setTableData((await res.json()).data);
-    // console.log(tableData, "666");
+    try {
+      const res = await fetch("http://localhost:5000/basePrice");
+      setTableData((await res.json()).data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleSubmit = () => {
-    // event.preventDefault();
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const res = await addBasePriceTable({ amount: amt });
+    if (res) {
+      getBasePriceTable();
+      setAmt("");
+    }
   };
 
   useEffect(() => {
     getBasePriceTable();
   }, []);
 
-  console.log(tableData, "111");
+  const handleUpdate = () => {
+    setIsToggle(!istoggle);
+  };
 
-  const handleUpdate = () => {};
-  const handleDelete = () => {};
+  const toggleForm = (e: number) => {
+    getBasePriceTable();
+    setIsToggle(!istoggle);
+  };
+
+  const handleDelete = async () => {
+    const res = await deleteBasePriceTable(tableData[0].id);
+    if (res) setTableData(rows);
+  };
   return (
     <>
-      <form className="form-basePrice" onSubmit={handleSubmit}>
-        <label>Enter Amount</label>
-        <input type="number" />
-        <button type="submit">SUBMIT</button>
-      </form>
+      {!istoggle ? (
+        <form className="form-basePrice" onSubmit={handleSubmit}>
+          <label>Enter Amount</label>
+          <input
+            type="number"
+            value={amt}
+            onChange={(event) => setAmt(event.target.value)}
+          />
+          <button type="submit" disabled={tableData.length > 0}>
+            ADD AMOUNT
+          </button>
+        </form>
+      ) : (
+        <EditBaseForm table={tableData} toggleForm={toggleForm} />
+      )}
       <div>
         <table className="tbl">
           <thead>
@@ -53,10 +81,10 @@ const BasePriceTable = () => {
               tableData.map((item: any) => {
                 return (
                   <tr key={item.id}>
-                    <td>{item.amount}</td>
+                    <td>{item.id}</td>
                     <td> {item.amount}</td>
-                    <td>{item.create_at}</td>
-                    <td>{item.update_at}</td>
+                    <td>{new Date(item.create_at).toLocaleString()}</td>
+                    <td>{new Date(item.update_at).toLocaleString()}</td>
                     <td>
                       <button
                         style={{

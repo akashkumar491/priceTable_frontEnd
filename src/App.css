@@ -86,3 +86,16 @@ th{
   color: white;
   
 }
+.sort{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  background-color: #C689C6;
+  border-radius: 5px;
+  margin:auto;
+  width: 15%;
+  padding: 1vh;
+  margin-top:3vh;
+  
+
+}
